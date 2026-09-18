@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: agent-torture-lab
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - .:/app
+
+    command: fastapi dev app/main.py --host 0.0.0.0
