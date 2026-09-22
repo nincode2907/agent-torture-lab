@@ -41,13 +41,26 @@ class CommerceRepository:
         }
 
     def get_product(self, product_id: int) -> Product | None:
-        return self.products(product_id)
-
-    def get_order(self, order_id: int) -> Order | None:
-        return self.orders.get(order_id)
+        return self.products.get(product_id)
 
     def add_product(self, product: Product) -> None:
         self.products[product.id] = product
 
+    def search_products(self, query: str) -> list[Product]:
+        query = query.lower()
+
+        return [
+            product
+            for product in self.products.values()
+            if query in product.name.lower()
+        ]
+
+
+    def get_order(self, order_id: int) -> Order | None:
+            return self.orders.get(order_id)
+
     def add_order(self, order: Order) -> None:
+            self.orders[order.id] = order
+    
+    def update_order(self, order: Order) -> None:
         self.orders[order.id] = order
