@@ -14,6 +14,7 @@ class CommerceTools:
 
     def get_order(self, order_id: int) -> dict:
         try:
+            print(order_id)
             order = self.service.get_order(order_id)
 
             return {

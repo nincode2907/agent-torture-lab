@@ -10,3 +10,4 @@ class PermissionPolicy:
 
     def can_refund_order(self, context: AgentContext) -> bool:
         return context.role == "admin"
+
