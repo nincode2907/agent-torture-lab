@@ -1,62 +1,63 @@
-TOOL_SCHEMAS = [
-    {
-        "name" : "search_product",
+from app.agent.tool_arguments import (
+    SearchProductArguments,
+    GetOrderArguments,
+    CancelOrderArguments,
+    RefundOrderArguments,
+)
+
+TOOL_DEFINITIONS = {
+    "search_product": {
         "description": "Search products by product name.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "Product name or partial product name",
-                }
-            }
-        },
-        "required": ["query"],
-        "additionalProperties": False,
+        "arguments_model": SearchProductArguments,
     },
-    {
-        "name": "get_order",
+    "get_order": {
         "description": "Get order information by order ID.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "Order ID",
-                }
-            },
-            "required": ["order_id"],
-            "additionalProperties": False,
-        },
+        "arguments_model": GetOrderArguments,
     },
-    {
-        "name": "cancel_order",
+    "cancel_order": {
         "description": "Cancel a pending order.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "Order ID to cancel",
-                }
-            },
-            "required": ["order_id"],
-            "additionalProperties": False,
-        },
+        "arguments_model": CancelOrderArguments,
     },
-    {
-        "name": "refund_order",
+    "refund_order": {
         "description": "Refund a paid order.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "Order ID to refund",
-                }
-            },
-            "required": ["order_id"],
-            "additionalProperties": False,
-        },
+        "arguments_model": RefundOrderArguments,
     },
-]
+}
+
+def get_tool_schemas() -> list[dict]:
+    schemas = []
+
+    for tool_name, definition in TOOL_DEFINITIONS.items():
+        arguments_model = definition["arguments_model"]
+
+        schemas.append({
+            "name": tool_name,
+            "description": definition["description"],
+            "parameters": arguments_model.model_json_schema(),
+        })
+
+    return schemas
+
+def get_openai_tools() -> list[dict]:
+    return [
+        {
+            "type": "function",
+            "name": schema["name"],
+            "description": schema["description"],
+            "parameters": schema["parameters"],
+        }
+        for schema in get_tool_schemas()
+    ]
+
+def get_groq_tools() -> list[dict]:
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": schema["name"],
+                "description": schema["description"],
+                "parameters": schema["parameters"],
+            },
+        }
+        for schema in get_tool_schemas()
+    ]
